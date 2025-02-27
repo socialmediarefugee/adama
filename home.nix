@@ -16,6 +16,7 @@
   home.stateVersion = "24.11"; # Please read the comment before changing.
 
   home.packages = with pkgs; [
+    unzip 
     nixd
 		nixfmt-rfc-style
     nixd
@@ -43,9 +44,11 @@
   	    };
     	};
     };
+
 		ripgrep = {
 		  enable = true;
     };
+
 		bash = {
 		  enable = true; # This is not redundant because there is no guarantee that bash will be available on system.
 			enableCompletion = true;
@@ -88,14 +91,10 @@
 		  enable = true;
     };
 
-
 		lsd = {
 		  enable = true;
 			enableAliases = true;
     };
-
-
-
 
 		wezterm = {
 		  enable = true;
@@ -115,13 +114,15 @@ return {
   }
 }
 '';
-    };
+
+    }; # wezterm
+
     neovim = {
 		  enable = true;
 			defaultEditor = true;
 			plugins = with pkgs.vimPlugins; [
 			  nvchad
-      			];
+      ];
 			viAlias = true;
 			vimAlias = true;
 			vimdiffAlias = true;
@@ -139,15 +140,8 @@ return {
 				":"
 				"${lib.makeSearchPathOutput "dev" "lib/pkgconfig" [ pkgs.stdenv.cc.cc pkgs.zlib ]}"
      			];
-
-
     }; 
-
-
   };
-
-
-
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
