@@ -62,7 +62,7 @@
 		  enable = true;
 			enableBashIntegration = true;
 			git = true;
-			icons = auto;
+			icons = "auto";
 			extraOptions = [
 			  "--group-directories-first"
 				"--header"
@@ -141,6 +141,13 @@ return {
 				"${lib.makeSearchPathOutput "dev" "lib/pkgconfig" [ pkgs.stdenv.cc.cc pkgs.zlib ]}"
      			];
     }; 
+
+    oh-my-posh = {
+      enable = true;
+      enableBashIntegration = true;
+      useTheme = "lambdageneration";
+    };
+
   };
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
