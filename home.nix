@@ -15,7 +15,11 @@
   # release notes.
   home.stateVersion = "25.05"; # Please read the comment before changing.
 
+  fonts.fontconfig.enable = true;
+
   home.packages = with pkgs; [
+  #  (nerdfonts.override { fonts = [ "Monaspace" "FiraCode"]; })
+    nerd-fonts.monaspace
     nixd
 		nixfmt-rfc-style
     nixd
