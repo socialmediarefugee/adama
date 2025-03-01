@@ -13,8 +13,8 @@
     fonts = {
 
       general = {
-        family = "MonaspiceXe Nerd Font Propo";
-        pointsize = 16;
+        family = "MonaspaceXe Nerd Font Propo";
+        pointSize = 16;
       };
 
     };
@@ -43,7 +43,7 @@
      }
     ];
 
-    shortcut = {
+    shortcuts = {
       ksmserver = {
         "Lock Session" = [
           "Screensaver"
