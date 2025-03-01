@@ -69,6 +69,9 @@
 			];
 		};
 
+    firefox.enable = true;
+
+    # Better Finder
     fd = {
 		  enable = true;
 			hidden = true;
@@ -78,6 +81,8 @@
 				];
 
     }; 
+
+    # Fuzzy finder
 		fzf = {
 		  enable = true;
 			enableBashIntegration = true;
