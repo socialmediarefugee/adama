@@ -1,46 +1,45 @@
-{lib, pkgs, plasma-manager, ...}: {
-
+{
+  lib,
+  pkgs,
+  plasma-manager,
+  ...
+}: {
   programs.plasma = {
     enable = true;
 
     workspace = {
-
       clickItemTo = "open";
       lookAndFeel = "org.kde.breezedark.desktop";
-
     };
 
     fonts = {
-
       general = {
-        family = "MonaspaceXe Nerd Font Propo";
-        pointSize = 16;
+        family = "AnonymicePro Nerd Font Propo";
+        pointSize = 14;
       };
-
     };
 
     window-rules = [
-     {
+      {
+        description = "wezterm";
 
-      description = "wezterm";
+        match = {
+          window-class = {
+            value = "wezterm";
+            type = "substring";
+          };
+          window-types = ["normal"];
+        };
 
-      match = {
-        window-class = {
-          value = "wezterm";
-          type = "substring";
+        apply = {
+          noborder = {
+            value = true;
+            apply = "force";
+          };
+          maximizehoriz = true;
+          maximizevert = true;
         };
-        window-types = ["normal"];
-      };
-
-      apply = {
-        noborder = {
-          value = true;
-          apply = "force";
-        };
-        maximizehoriz = true;
-        maximizevert = true;
-        };
-     }
+      }
     ];
 
     shortcuts = {
@@ -59,7 +58,7 @@
         "Switch Windows Up" = "Meta+K";
       }; # kwin
     }; # Shortcuts
-     # This is because its a pain in the ass when accidentally hitting the touchpad.
+    # This is because its a pain in the ass when accidentally hitting the touchpad.
     configFile = {
       "touchpadxlibinputrc" = {
         "[Libinput][1739][52759][SYNA32A4:00 06CB:CE17 Touchpad]" = {
@@ -67,7 +66,5 @@
         };
       };
     }; # configFile
-
   }; # Plasma
-
 }
