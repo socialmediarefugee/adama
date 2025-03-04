@@ -15,6 +15,8 @@
     builtins.elem(pkgs.lib.getName pkg) [
       "obsidian"
       "lmstudio"
+      "code"
+      "vscode"
       "vscode-fhs"
       "steam"
       "steam-unwrapped"
@@ -48,8 +50,17 @@
     lazarus-qt6 # 3.6.0 version of Lazarus
     gdb # debugger
     zig # get a c compiler for free
+    clang
     rustup # So's we can manage rust on our lonesome
+
+    ###### Unfree ######
     obsidian # Because its my scratch pad.
+    vscode-fhs
+    lmstudio
+#    steam
+#    steam-unwrapped
+#    steam-original
+#    steam-run
   ];
 
   programs = {
