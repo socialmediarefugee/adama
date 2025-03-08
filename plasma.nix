@@ -14,7 +14,7 @@
 
     fonts = {
       general = {
-        family = "AnonymicePro Nerd Font Propo";
+        family = "Monaspace Nerd Font Propo";
         pointSize = 14;
       };
     };

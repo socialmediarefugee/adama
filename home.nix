@@ -11,8 +11,13 @@
   home.username = "adama";
   home.homeDirectory = "/home/adama";
 
-  nixpkgs.config.allowUnfreePredicate = pkg:
-    builtins.elem(pkgs.lib.getName pkg) [
+  home.shellAliases = {
+    cdf = "cd \"$(dirname \"$(realpath \"$1\")\")";
+  };
+
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (pkgs.lib.getName pkg) [
       "obsidian"
       "lmstudio"
       "code"
@@ -22,6 +27,7 @@
       "steam-unwrapped"
       "steam-original"
       "steam-run"
+      "albert"
     ];
 
   # This value determines the Home Manager release that your configuration is
@@ -43,8 +49,11 @@
     nerd-fonts.envy-code-r
     nerd-fonts.anonymice
     nerd-fonts.arimo
+    nerd-fonts.fira-code
     nixfmt-rfc-style
     nixd
+    manix
+    albert # Alfred work-alike for Linux
     gnumake # Yech, but required for lazarus
     fpc # I thought Lazarus installed this itself but apparently not
     lazarus-qt6 # 3.6.0 version of Lazarus
@@ -52,19 +61,25 @@
     zig # get a c compiler for free
     clang
     rustup # So's we can manage rust on our lonesome
+    tor-browser
+    brave # Brave doesn't appear to be supported by home-manager yet
 
     ###### Unfree ######
     obsidian # Because its my scratch pad.
     vscode-fhs
     lmstudio
-#    steam
-#    steam-unwrapped
-#    steam-original
-#    steam-run
+    #    steam
+    #    steam-unwrapped
+    #    steam-original
+    #    steam-run
+
+    xdotool
+    xorg.xprop
+    kdePackages.qttools
+    kdePackages.kdialog
   ];
 
   programs = {
-
 
     bash = {
       enable = true; # This is not redundant because there is no guarantee that bash will be available on system.
@@ -75,7 +90,26 @@
 
     bat = {
       enable = true;
-      extraPackages = with pkgs.bat-extras; [ batdiff batgrep batman batpipe batwatch prettybat ];
+      extraPackages = with pkgs.bat-extras; [
+        batdiff
+        batgrep
+        batman
+        batpipe
+        batwatch
+        prettybat
+      ];
+    };
+
+
+    chromium = {
+      enable = true;
+      nativeMessagingHosts = [ pkgs.kdePackages.plasma-browser-integration ];
+      dictionaries = [
+        pkgs.hunspellDictsChromium.en_US
+      ];
+      #enablePlasmaBrowserIntegration = true;
+      # TODO: Replace the hard coded user
+      commandLineArgs = [ "--disk-cache-dir=\"$XDG_RUNTIME_DIR/adama-chromium\"" ];
     };
 
     direnv = {
@@ -94,9 +128,11 @@
         "--header"
       ];
     };
-
-    firefox.enable = true;
-
+    
+    firefox = {
+      enable = true;
+      
+    };
     # Better Finder
     fd = {
       enable = true;
@@ -108,9 +144,7 @@
 
     };
 
-
     #freetube.enable = true;  #  Thinking about this rather than using Firefox.
-
 
     # Fuzzy finder
     fzf = {
@@ -188,7 +222,7 @@
     oh-my-posh = {
       enable = true;
       enableBashIntegration = true;
-      useTheme = "lambdageneration";
+      useTheme = "atomic";
     };
 
     ripgrep = {
@@ -205,44 +239,64 @@
       enableBashIntegration = true;
       # Since things like this are copied verbatim, do not format at this level
       extraConfig = ''
-        -- Your lua code / config here
-        local wezterm = require 'wezterm';
-        return {
-        --#font = wezterm.font("Monofur Nerd Font Propo, Regular"),
-          font_size = 14.0,
-          color_scheme = "Treehouse",
-          hide_tab_bar_if_only_one_tab = true,
-          keys = {
-            {key="n", mods="SHIFT|CTRL", action="ToggleFullScreen"},
-          }
+               -- Your lua code / config here
+                -- Pull in the wezterm API
+        local wezterm = require 'wezterm'
+
+        -- Use config_builder for cleaner configuration
+        local config = wezterm.config_builder()
+
+        -- Load plugins
+        local wezterm_config_nvim = wezterm.plugin.require 'https://github.com/winter-again/wezterm-config.nvim'
+        local modal = wezterm.plugin.require("https://github.com/MLFLexer/modal.wezterm")
+
+        -- Apply modal plugin to config
+        -- modal.apply_to_config(config)
+
+        -- Handle dynamic config overrides via user-var-changed event
+        wezterm.on('user-var-changed', function(window, pane, name, value)
+            local overrides = window:get_config_overrides() or {}
+            overrides = wezterm_config_nvim.override_user_var(overrides, name, value)
+            window:set_config_overrides(overrides)
+        end)
+
+        -- Set configuration options directly on the config object
+        config.font = wezterm.font("FiraCode Nerd Font") -- Fixed font syntax
+        config.font_size = 16.0
+        config.color_scheme = "VisiBone (terminal.sexy)"
+        config.hide_tab_bar_if_only_one_tab = true
+        config.keys = {
+            { key = "n", mods = "SHIFT|CTRL", action = wezterm.action.ToggleFullScreen },
         }
+
+        -- Return the config object
+        return config 
       '';
 
     }; # wezterm
-
 
     xplr = {
       enable = true;
     };
 
+    vscode = {
+      enable = true;
+      package = pkgs.vscode-fhs;
+      #   profiles = {
+      #     adama = {
+      #       extensions = [ asvetliakov.vscode-neovim ];
+      #     };
+      #   };
+      # Mutually exclusive with:
+      mutableExtensionsDir = true;
+    };
 
-    # vscode = {
-    #   enable = true;
-    #   programs.vscode.package = pkgs.vscode-fhs;
-    #   # profiles = {
-    #   #   adama = {
-    #   #     extensions = [ asvetliakov.vscode-neovim ];
-    #   #   };
-    #   # };
-    #   mutableExtensionsDir = true;
-    # };
-    #
   }; # programs
 
   services = {
     # activitywatch.enable = true;
 
-    copyq.enable = true;
+    #copyq.enable = true;
 
     kdeconnect = {
       enable = true;
@@ -250,6 +304,15 @@
     };
 
     opensnitch-ui.enable = true;
+
+    psd = {
+      enable = true;
+      browsers = [
+        "chromium"
+        "firefox"
+      ];
+
+    };
 
   };
 
@@ -290,6 +353,7 @@
   #
   home.sessionVariables = {
     #     EDITOR = "nvim";
+    VISUAL = "neovide";
   };
 
   # Let Home Manager install and manage itself.
