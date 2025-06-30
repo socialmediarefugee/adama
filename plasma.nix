@@ -3,12 +3,12 @@
   pkgs,
   plasma-manager,
   ...
-}: {
+}:
+{
   programs.plasma = {
     enable = true;
 
     workspace = {
-      clickItemTo = "open";
       lookAndFeel = "org.kde.breezedark.desktop";
     };
 
@@ -28,7 +28,7 @@
             value = "wezterm";
             type = "substring";
           };
-          window-types = ["normal"];
+          window-types = [ "normal" ];
         };
 
         apply = {
@@ -36,6 +36,20 @@
             value = true;
             apply = "force";
           };
+          maximizehoriz = true;
+          maximizevert = true;
+        };
+      }
+      {
+        description = "doomEmacs";
+        match = {
+          window-class = {
+            value = "emacs";
+            type = "substring";
+          };
+          window-types = [ "normal" ];
+        };
+        apply = {
           maximizehoriz = true;
           maximizevert = true;
         };
@@ -48,7 +62,7 @@
           "Screensaver"
           "Meta+Ctrl+Alt+L"
         ];
-      }; #ksmserver
+      }; # ksmserver
 
       kwin = {
         "Expose" = "Meta+,";

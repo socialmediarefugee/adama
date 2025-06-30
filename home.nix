@@ -5,29 +5,51 @@
   ...
 }:
 
+let
+  fromGitHub =
+    ref: repo:
+    pkgs.vimUtils.buildVimPlugin {
+      pname = "${lib.strings.sanitizeDerivationName repo}";
+      version = ref;
+      src = builtins.fetchGit {
+        url = "https://github.com/${repo}.git";
+        ref = ref;
+      };
+    };
+in
+
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "adama";
   home.homeDirectory = "/home/adama";
 
+  home.shell = {
+    enableBashIntegration = true;
+    enableNushellIntegration = false;
+    enableFishIntegration = true;
+  };
+
   home.shellAliases = {
-    cdf = "cd \"$(dirname \"$(realpath \"$1\")\")";
+    nvlazy = "NVIM_APPNAME=nvim-lazy nvim";
+    nvmaria = "NVIM_APPNAME=nvim-maria nvim";
+    #cdf = "cd \"$(dirname \"$(realpath \"$1\")\")";
   };
 
   nixpkgs.config.allowUnfreePredicate =
     pkg:
-    builtins.elem (pkgs.lib.getName pkg) [
+    builtins.elem (lib.getName pkg) [
       "obsidian"
       "lmstudio"
       "code"
+      "code-cursor-fhs"
+      "code-cursor"
+      "cursor"
       "vscode"
       "vscode-fhs"
-      "steam"
-      "steam-unwrapped"
-      "steam-original"
-      "steam-run"
       "albert"
+      "claude-code"
+      "gemini-cli"
     ];
 
   # This value determines the Home Manager release that your configuration is
@@ -60,7 +82,26 @@
     gdb # debugger
     zig # get a c compiler for free
     clang
+    ccls
+    libclang
+
+    playerctl
+
+    lunarvim
+    #clang-tools
+    go_1_24 # Golang compiler
+    goda # Dependency analysis for Go
+    gopls # Language SErver for Go
+    golint # Linter for Go
+    gotools # Tools for Go
+    gotests
+    gocyclo
+
+    glow # Text based Markdown preview
+
+    #    rustc
     rustup # So's we can manage rust on our lonesome
+    #    cargo
     tor-browser
     brave # Brave doesn't appear to be supported by home-manager yet
 
@@ -68,15 +109,66 @@
     obsidian # Because its my scratch pad.
     vscode-fhs
     lmstudio
-    #    steam
-    #    steam-unwrapped
-    #    steam-original
-    #    steam-run
-
     xdotool
     xorg.xprop
     kdePackages.qttools
     kdePackages.kdialog
+    kdePackages.kde-cli-tools
+    kdePackages.kde-gtk-config
+    lua-language-server
+    luajitPackages.lua-lsp
+    luajitPackages.luarocks-nix
+
+    lynx
+    #luajitPackages.luarocks-build-treesitter-parser
+    zathura
+    #emacs-gtk
+
+    nim
+    nimlangserver
+    nimble
+    cmakeWithGui
+    markdown-oxide
+    markdownlint-cli
+    cmakeWithGui
+    markdown-oxide
+    markdownlint-cli
+    shfmt
+    shellcheck
+    swift
+    swiftformat
+    md-tui # markdown renderer
+    multimarkdown
+    #pandoc_3_6
+    libxml2 # For xmllint
+
+    xml-tooling-c
+    nodejs
+    ocaml
+    opam
+    ocamlformat
+    ocamlPackages.findlib
+    ocamlPackages.ocaml-lua
+    ocamlPackages.ocaml-lsp
+    ocamlPackages.dune_3
+    ocamlPackages.utop
+    ocamlPackages.merlin
+    ocamlPackages.merlin-extend
+    ocamlPackages.ocp-indent
+    ocamlPackages.ocamlmerlin-mlx
+    ocamlPackages.janeStreet.base
+    ocamlPackages.janeStreet.abstract_algebra
+    ocamlPackages.janeStreet.bignum
+
+    tree-sitter
+    tree-sitter-grammars.tree-sitter-nix
+    #tree-sitter-grammars.tree-sitter-ocaml
+    # LLM Utilities
+    claude-code
+    #code-cursor
+    code-cursor-fhs
+    gemini-cli
+
   ];
 
   programs = {
@@ -100,6 +192,12 @@
       ];
     };
 
+    carapace = {
+      enable = true;
+      enableBashIntegration = true;
+      enableNushellIntegration = true;
+      enableFishIntegration = true;
+    };
 
     chromium = {
       enable = true;
@@ -118,21 +216,31 @@
       nix-direnv.enable = true;
     };
 
-    eza = {
+    /*
+      For some reason this conflicts with Nushell when installed
+      eza = {
+        enable = true;
+        #enableBashIntegration = true;
+        git = true;
+        icons = "auto";
+        extraOptions = [
+          "--group-directories-first"
+          "--header"
+        ];
+      };
+    */
+    # See also services.emacs
+    emacs = {
       enable = true;
-      enableBashIntegration = true;
-      git = true;
-      icons = "auto";
-      extraOptions = [
-        "--group-directories-first"
-        "--header"
-      ];
+      extraConfig = ''
+        (setq standard-indent 2)
+      '';
     };
-    
+
     firefox = {
       enable = true;
-      
     };
+
     # Better Finder
     fd = {
       enable = true;
@@ -142,6 +250,11 @@
         "*.bak"
       ];
 
+    };
+
+    fish = {
+      enable = true;
+      generateCompletions = true;
     };
 
     #freetube.enable = true;  #  Thinking about this rather than using Firefox.
@@ -164,7 +277,7 @@
 
     lsd = {
       enable = true;
-      enableAliases = true;
+      #  enableAliases = true;
     };
 
     neovide = {
@@ -191,39 +304,69 @@
     neovim = {
       enable = true;
       defaultEditor = true;
-      plugins = with pkgs.vimPlugins; [
-        nvchad
-      ];
+      /*
+              plugins = with pkgs.vimPlugins; [
+                luasnip
+                lush-nvim
+                orgmode
+                copilot-lua
+                copilot-lualine
+                nvchad
+        	      nvchad-ui
+              ];
+      */
       viAlias = true;
       vimAlias = true;
       vimdiffAlias = true;
       withNodeJs = true;
       withPython3 = true;
       withRuby = true;
+      /*
+            extraWrapperArgs = [
+              "--suffix"
+              "LIBRARY_PATH"
+              ":"
+              "${lib.makeLibraryPath [
+                pkgs.stdenv.cc.cc
+                pkgs.zlib
+              ]}"
+              "--suffix"
+              "PKG_CONFIG_PATH"
+              ":"
+              "${lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
+                pkgs.stdenv.cc.cc
+                pkgs.zlib
+              ]}"
+            ];
+      */
+    };
 
-      extraWrapperArgs = [
-        "--suffix"
-        "LIBRARY_PATH"
-        ":"
-        "${lib.makeLibraryPath [
-          pkgs.stdenv.cc.cc
-          pkgs.zlib
-        ]}"
-        "--suffix"
-        "PKG_CONFIG_PATH"
-        ":"
-        "${lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
-          pkgs.stdenv.cc.cc
-          pkgs.zlib
-        ]}"
-      ];
+    nushell = {
+      enable = false;
+      extraConfig = ''
+
+        $env.config.show_banner = false;
+      '';
+
     };
 
     oh-my-posh = {
       enable = true;
       enableBashIntegration = true;
+      enableFishIntegration = true;
       useTheme = "atomic";
     };
+
+    opam = {
+      enable = true;
+      enableBashIntegration = true;
+      enableFishIntegration = true;
+      enableZshIntegration = true;
+    };
+
+    #    playerctld = {
+    #enable = true;
+    # };
 
     ripgrep = {
       enable = true;
@@ -234,6 +377,12 @@
       enableAutoUpdates = true;
     };
 
+    # thefuck = {
+    #   enable = true;
+    #   enableBashIntegration = true;
+    #   enableFishIntegration = true;
+    # };
+    #
     wezterm = {
       enable = true;
       enableBashIntegration = true;
@@ -262,21 +411,29 @@
 
         -- Set configuration options directly on the config object
         config.font = wezterm.font("FiraCode Nerd Font") -- Fixed font syntax
-        config.font_size = 16.0
+        config.font_size = 14.0
         config.color_scheme = "VisiBone (terminal.sexy)"
         config.hide_tab_bar_if_only_one_tab = true
         config.keys = {
             { key = "n", mods = "SHIFT|CTRL", action = wezterm.action.ToggleFullScreen },
         }
+        config.default_prog = { 'fish' }
+
 
         -- Return the config object
-        return config 
+        return config
       '';
 
     }; # wezterm
 
     xplr = {
       enable = true;
+    };
+
+    yazi = {
+      enable = true;
+      enableBashIntegration = true;
+      enableFishIntegration = true;
     };
 
     vscode = {
@@ -312,6 +469,10 @@
         "firefox"
       ];
 
+    };
+
+    emacs = {
+      enable = true;
     };
 
   };
@@ -354,6 +515,11 @@
   home.sessionVariables = {
     #     EDITOR = "nvim";
     VISUAL = "neovide";
+    PATH = "$HOME/.emacs.d/bin:$PATH";
+    #PATH = '${builtins.getEnv "HOME" /.emacs.d/bin}${builtins.getEnv "PATH"}';
+    #FPC = "${builtins.getEnv "HOME" /.fpc}";
+    #LAZARUS = "${builtins.getEnv "HOME" /.fpc/lazarus}";
+
   };
 
   # Let Home Manager install and manage itself.
